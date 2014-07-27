@@ -66,23 +66,19 @@ def tap_attack_end():
 
 
 def tap_XY(x, y):
-	event_1 = "/dev/input/event1 3 57 7736"
-	event_2 = "/dev/input/event1 3 53 %d" % x
-	event_3 = "/dev/input/event1 3 54 %d" % y
-	event_4 = "/dev/input/event1 0 0 0"
-	event_5 = "/dev/input/event1 3 57 4294967295"
-	event_6 = "/dev/input/event1 0 0 0"
+	events = []
+	events.append("/dev/input/event1 3 57 7736")
+	events.append("/dev/input/event1 3 53 %d" % x)
+	events.append("/dev/input/event1 3 54 %d" % y)
+	events.append("/dev/input/event1 0 0 0")
+	events.append("/dev/input/event1 3 57 4294967295")
+	events.append("/dev/input/event1 0 0 0")
+	send_events(events)
 
-	send_event(event_1, event_2, event_3, event_4, event_5, event_6)
 
-
-def send_event(e_1, e_2, e_3, e_4, e_5, e_6):
-	os.system("%s shell sendevent %s" % (adb, e_1))
-	os.system("%s shell sendevent %s" % (adb, e_2))
-	os.system("%s shell sendevent %s" % (adb, e_3))
-	os.system("%s shell sendevent %s" % (adb, e_4))
-	os.system("%s shell sendevent %s" % (adb, e_5))
-	os.system("%s shell sendevent %s" % (adb, e_6))
+def send_events(events):
+	for event in events:
+		os.system("%s shell sendevent %s" % (adb, event))
 
 
 def wait_for_a_while(start=30, end=60):
