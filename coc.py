@@ -19,7 +19,7 @@ def get_resources():
 
 	cmd_capture = "%s shell screencap -p /sdcard/lozen130/%s" % (adb, f_png)
 	cmd_save = "%s pull /sdcard/lozen130/%s ." % (adb, f_png)
-	cmd_crop = "convert %s -crop 90x240+855+99 -rotate 270 -resize 400%% -brightness-contrast -80 -type Grayscale %s" % (f_png, f_tiff)
+	cmd_crop = "convert %s -crop 220x190+730+96 -rotate 270 -resize 400%% +contrast +contrast +contrast -brightness-contrast -64 -negate -type Grayscale %s" % (f_png, f_tiff)
 	cmd_ocr = "tesseract -l eng %s %s nobatch digit" % (f_tiff, f_name)
 
 #	print "Capturing..."
@@ -91,20 +91,23 @@ def wait_for_a_while(start=30, end=60):
 	return wait_time
 
 
-def threshold_reached(res, gold, ex):
+def threshold_reached(res, gold, ex, dark):
 	if (res[0] > gold) or (res[1] > ex):
 		return True
 	elif (res[0] + res[1] > (gold + ex)*0.67):
+		return True
+	elif (len(res) == 4) and (res[2] > dark):
 		return True
 	else:
 		return False
 
 
-def smart_search(delay=8, gold=150000, ex=150000):
+def smart_search(delay=8, gold=120000, ex=120000, dark=1000):
 	print "[COC] Smart Search"
-	print "Gold   threshold: %d" % gold
-	print "Elixir threshold: %d" % ex
-	print "Searching delay: %d" % delay
+	print "Gold   threshold: {:7,d}".format(gold)
+	print "Elixir threshold: {:7,d}".format(ex)
+	print "Dark E threshold: {:7,d}".format(dark)
+	print "Searching delay : %d seconds" % delay
 
 	count = 0
 	print "\n[%3d] %s" % (count, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
@@ -118,8 +121,8 @@ def smart_search(delay=8, gold=150000, ex=150000):
 
 		# Processing...
 		res = get_resources()
-		if (len(res) == 2) and threshold_reached(res, gold, ex):
-			cmd_say = "say 'Gold %d, elixir %d. General, I found the target. Shall we attack now?'" % (res[0], res[1])
+		if (len(res) >= 2) and threshold_reached(res, gold, ex, dark):
+			cmd_say = "say 'Gold %d, elixir %d. I found the target. Shall we attack now?'" % (res[0]/1000*1000, res[1]/1000*1000)
 			os.system(cmd_say)
 			print "\n[%3d] %s (+%2d sec)" % (count, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),  wait_for_a_while(1, 3))
 
@@ -162,5 +165,5 @@ def searching_mode():
 if __name__ == "__main__":
 #	searching_mode()
 #	fast_search()
-	smart_search()
+	smart_search(gold=150000, ex=150000)
 
