@@ -4,12 +4,6 @@ import sys
 import random
 import time
 
-adb = "/Users/becky/Downloads/adt-bundle-mac-x86_64-20140321/sdk/platform-tools/adb"
-
-cmd_1 = "%s shell am start -n com.supercell.clashofclans/.GameApp" % adb
-cmd_2 = "%s shell am force-stop com.supercell.clashofclans" % adb
-
-
 
 def get_resources():
 	f_name = "_coc"
@@ -17,8 +11,8 @@ def get_resources():
 	f_tiff = "%s.tiff" % f_name
 	f_txt = "%s.txt" % f_name
 
-	cmd_capture = "%s shell screencap -p /sdcard/lozen130/%s" % (adb, f_png)
-	cmd_save = "%s pull /sdcard/lozen130/%s ." % (adb, f_png)
+	cmd_capture = "adb shell screencap -p /sdcard/%s" % f_png
+	cmd_save = "adb pull /sdcard/%s ." % f_png
 	cmd_crop = "convert %s -crop 220x190+730+96 -rotate 270 -resize 400%% +contrast +contrast +contrast -brightness-contrast -64 -negate -type Grayscale %s" % (f_png, f_tiff)
 	cmd_ocr = "tesseract -l eng %s %s nobatch digit" % (f_tiff, f_name)
 
@@ -78,7 +72,7 @@ def tap_XY(x, y):
 
 def send_events(events):
 	for event in events:
-		os.system("%s shell sendevent %s" % (adb, event))
+		os.system("adb shell sendevent %s" % event)
 
 
 def wait_for_a_while(start=30, end=60):
@@ -141,6 +135,10 @@ def fast_search():
 
 def searching_mode():
 	print "[COC] Searching Mode"
+
+	cmd_1 = "adb shell am start -n com.supercell.clashofclans/.GameApp"
+	cmd_2 = "adb shell am force-stop com.supercell.clashofclans"
+
 	os.system(cmd_2)
 	os.system(cmd_1)
 	wait_for_a_while(20, 25)
