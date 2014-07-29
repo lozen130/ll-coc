@@ -173,22 +173,6 @@ def load_device_config():
 		DEVICE = ast.literal_eval(s)
 
 
-	# TODO: move this to a separate helper script to generate the config file
-	################################################################################
-	# nexus_5 = {}
-	# nexus_5["_touch_event"] = "/dev/input/event1"
-	# nexus_5["_crop_area"] = "220x190+730+96"
-
-	# nexus_5["tap_attack"] = [131, 149]
-	# nexus_5["tap_attack_close"] = [983, 1853]
-	# nexus_5["tap_attack_find"] = [255, 420]
-	# nexus_5["tap_attack_next"] = [341, 1698]
-	# nexus_5["tap_attack_end"] = [308, 154]
-
-	# print nexus_5
-	################################################################################
-
-
 def pre_processing():
 	load_device_config()
 
