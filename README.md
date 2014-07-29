@@ -8,6 +8,7 @@ A simple COC attack planner
 - Dependency: 
   * Android Debug Bridge (adb) http://developer.android.com/sdk/index.html
   * OCR on OS X with tesseract https://gist.github.com/henrik/1967035
+  * Copy tesseract config file from "config/digits" to "/usr/local/share/tessdata/configs/"
 - Known issue:
   * LLCOC-1: Having problem when rotating device in 180 degree during playing
   * LLCOC-2: Dark Elixir and Trophies cannot be reconginzed correctly sometimes
