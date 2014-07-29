@@ -4,40 +4,53 @@ import sys
 import random
 import time
 import ast
+import subprocess
 
 
 # Global variable
 DEVICE = {}
 
 
+def get_orientation():
+	out = os.popen("adb shell dumpsys input | grep 'SurfaceOrientation' | awk '{ print $2 }'")
+	for l in out:
+		#print int(l.strip())
+		return int(l.strip())
+
+
 def get_resources():
+	res = []
+
 	f_name = "_coc"
 	f_png = "%s.png" % f_name
 	f_tiff = "%s.tiff" % f_name
 	f_txt = "%s.txt" % f_name
 
-	crop_area = DEVICE["_crop_area"]
-
 	cmd_capture = "adb shell screencap -p /sdcard/%s" % f_png
 	cmd_save = "adb pull /sdcard/%s ." % f_png
-	cmd_crop = "convert %s -crop %s -rotate 270 -resize 400%% +contrast +contrast +contrast -brightness-contrast -64 -negate -type Grayscale %s" % (f_png, crop_area, f_tiff)
+
+	degree = 0
+	orientation = get_orientation()
+	if orientation == DEVICE["_counterclock"]:
+		degree = 270
+	elif orientation == DEVICE["_clockwise"]:
+		degree = 90
+	else:
+		return res
+	cmd_rotate = "convert %s -rotate %d %s" % (f_png, degree, f_png)
+
+	crop_area = DEVICE["_crop_area"]
+	cmd_crop = "convert %s -crop %s -resize 400%% +contrast +contrast +contrast -brightness-contrast -64 -negate -type Grayscale %s" % (f_png, crop_area, f_tiff)
+
 	cmd_ocr = "tesseract -l eng %s %s nobatch digit" % (f_tiff, f_name)
 
-#	print "Capturing..."
 	os.system(cmd_capture)
-
-#	print "Saving..."
 	os.system(cmd_save)
-
-#	print "Converting..."
+	os.system(cmd_rotate)
 	os.system(cmd_crop)
-
-#	print "Reading..."
 	os.system(cmd_ocr)
 
 	resources = open(f_txt , 'r')
-
-	res = []
 	for line in resources:
 		if len(line.strip()) > 0:
 			res.append(int(line.replace(' ', '').strip()))
@@ -67,12 +80,24 @@ def tap_attack_end():
 
 
 def tap_XY(coordinate):
+	x = 0
+	y = 0
+	orientation = get_orientation()
+	if orientation == DEVICE["_counterclock"]:
+		x = coordinate[0]
+		y = coordinate[1]
+	elif orientation == DEVICE["_clockwise"]:
+		x = DEVICE["_resolution"][0] - coordinate[0]
+		y = DEVICE["_resolution"][1] - coordinate[1]
+	else:
+		return
+
 	touch_event = DEVICE["_touch_event"]
 
 	events = []
 	events.append("%s 3 57 7736" % touch_event)
-	events.append("%s 3 53 %d" % (touch_event, coordinate[0]))
-	events.append("%s 3 54 %d" % (touch_event, coordinate[1]))
+	events.append("%s 3 53 %d" % (touch_event, x))
+	events.append("%s 3 54 %d" % (touch_event, y))
 	events.append("%s 0 0 0" % touch_event)
 	events.append("%s 3 57 4294967295" % touch_event)
 	events.append("%s 0 0 0" % touch_event)
@@ -165,10 +190,10 @@ def searching_mode():
 #		tap_attack_close()
 
 
-def load_device_config():
+def load_device_config(device="nexus_5"):
 	global DEVICE
 
-	with open('config/nexus_5.config', 'r') as f:
+	with open("config/%s.config" % device, 'r') as f:
 		s = f.read()
 		DEVICE = ast.literal_eval(s)
 
@@ -183,4 +208,3 @@ if __name__ == "__main__":
 #	searching_mode()
 #	fast_search()
 	smart_search(gold=150000, ex=150000)
-

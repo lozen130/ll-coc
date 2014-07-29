@@ -7,11 +7,16 @@ def main():
 
 	device = {}
 
+	# Device specs
+	device["_resolution"] = [1080, 1920]
+	device["_clockwise"] = 3
+	device["_counterclock"] = 1
+
 	# Touch event
 	device["_touch_event"] = "/dev/input/event1"
 
 	# Cropping area
-	device["_crop_area"] = "220x190+730+96"
+	device["_crop_area"] = "190x220+96+130"
 
 	# Coordinates
 	device["tap_attack"] = [131, 149]
