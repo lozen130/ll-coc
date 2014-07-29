@@ -3,6 +3,7 @@ ll-coc
 
 A simple COC attack planner
 
+
 - Designed for Nexus 5 with Mac only.
 - Dependency: 
   * Android Debug Bridge (adb) http://developer.android.com/sdk/index.html
@@ -10,8 +11,6 @@ A simple COC attack planner
 - Known issue:
   * LLCOC-1: Having problem when rotating device in 180 degree during playing
   * LLCOC-2: Dark Elixir and Trophies cannot be reconginzed correctly sometimes
-- Todo:
-  * LLCOC-3: Read device specific values from config file
 
 
 Use it at your own risk! Modify paths/parameters if applicable.

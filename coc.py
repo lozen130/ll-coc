@@ -3,19 +3,11 @@ import os
 import sys
 import random
 import time
-
-NEXUS_5 = {}
-NEXUS_5["_touch_event"] = "/dev/input/event1"
-NEXUS_5["_crop_area"] = "220x190+730+96"
-
-NEXUS_5["tap_attack"] = [131, 149]
-NEXUS_5["tap_attack_close"] = [983, 1853]
-NEXUS_5["tap_attack_find"] = [255, 420]
-NEXUS_5["tap_attack_next"] = [341, 1698]
-NEXUS_5["tap_attack_end"] = [308, 154]
+import ast
 
 
-DEVICE = NEXUS_5
+# Global variable
+DEVICE = {}
 
 
 def get_resources():
@@ -173,7 +165,37 @@ def searching_mode():
 #		tap_attack_close()
 
 
+def load_device_config():
+	global DEVICE
+
+	with open('config/nexus_5.config', 'r') as f:
+		s = f.read()
+		DEVICE = ast.literal_eval(s)
+
+
+	# TODO: move this to a separate helper script to generate the config file
+	################################################################################
+	# nexus_5 = {}
+	# nexus_5["_touch_event"] = "/dev/input/event1"
+	# nexus_5["_crop_area"] = "220x190+730+96"
+
+	# nexus_5["tap_attack"] = [131, 149]
+	# nexus_5["tap_attack_close"] = [983, 1853]
+	# nexus_5["tap_attack_find"] = [255, 420]
+	# nexus_5["tap_attack_next"] = [341, 1698]
+	# nexus_5["tap_attack_end"] = [308, 154]
+
+	# print nexus_5
+	################################################################################
+
+
+def pre_processing():
+	load_device_config()
+
+
 if __name__ == "__main__":
+	pre_processing()
+
 #	searching_mode()
 #	fast_search()
 	smart_search(gold=150000, ex=150000)
