@@ -4,6 +4,19 @@ import sys
 import random
 import time
 
+NEXUS_5 = {}
+NEXUS_5["_touch_event"] = "/dev/input/event1"
+NEXUS_5["_crop_area"] = "220x190+730+96"
+
+NEXUS_5["tap_attack"] = [131, 149]
+NEXUS_5["tap_attack_close"] = [983, 1853]
+NEXUS_5["tap_attack_find"] = [255, 420]
+NEXUS_5["tap_attack_next"] = [341, 1698]
+NEXUS_5["tap_attack_end"] = [308, 154]
+
+
+DEVICE = NEXUS_5
+
 
 def get_resources():
 	f_name = "_coc"
@@ -11,9 +24,11 @@ def get_resources():
 	f_tiff = "%s.tiff" % f_name
 	f_txt = "%s.txt" % f_name
 
+	crop_area = DEVICE["_crop_area"]
+
 	cmd_capture = "adb shell screencap -p /sdcard/%s" % f_png
 	cmd_save = "adb pull /sdcard/%s ." % f_png
-	cmd_crop = "convert %s -crop 220x190+730+96 -rotate 270 -resize 400%% +contrast +contrast +contrast -brightness-contrast -64 -negate -type Grayscale %s" % (f_png, f_tiff)
+	cmd_crop = "convert %s -crop %s -rotate 270 -resize 400%% +contrast +contrast +contrast -brightness-contrast -64 -negate -type Grayscale %s" % (f_png, crop_area, f_tiff)
 	cmd_ocr = "tesseract -l eng %s %s nobatch digit" % (f_tiff, f_name)
 
 #	print "Capturing..."
@@ -40,33 +55,35 @@ def get_resources():
 
 
 def tap_attack():
-	tap_XY(131, 149)
+	tap_XY(DEVICE["tap_attack"])
 
 
 def tap_attack_close():
-	tap_XY(983, 1853)
+	tap_XY(DEVICE["tap_attack_close"])
 
 
 def tap_attack_find():
-	tap_XY(255, 420)
+	tap_XY(DEVICE["tap_attack_find"])
 
 
 def tap_attack_next():
-	tap_XY(341, 1698)
+	tap_XY(DEVICE["tap_attack_next"])
 
 
 def tap_attack_end():
-	tap_XY(308, 154)
+	tap_XY(DEVICE["tap_attack_end"])
 
 
-def tap_XY(x, y):
+def tap_XY(coordinate):
+	touch_event = DEVICE["_touch_event"]
+
 	events = []
-	events.append("/dev/input/event1 3 57 7736")
-	events.append("/dev/input/event1 3 53 %d" % x)
-	events.append("/dev/input/event1 3 54 %d" % y)
-	events.append("/dev/input/event1 0 0 0")
-	events.append("/dev/input/event1 3 57 4294967295")
-	events.append("/dev/input/event1 0 0 0")
+	events.append("%s 3 57 7736" % touch_event)
+	events.append("%s 3 53 %d" % (touch_event, coordinate[0]))
+	events.append("%s 3 54 %d" % (touch_event, coordinate[1]))
+	events.append("%s 0 0 0" % touch_event)
+	events.append("%s 3 57 4294967295" % touch_event)
+	events.append("%s 0 0 0" % touch_event)
 	send_events(events)
 
 
