@@ -42,7 +42,7 @@ def get_resources():
 	crop_area = DEVICE["_crop_area"]
 	cmd_crop = "convert %s -crop %s -resize 400%% +contrast +contrast +contrast -brightness-contrast -64 -negate -type Grayscale %s" % (f_png, crop_area, f_tiff)
 
-	cmd_ocr = "tesseract -l eng %s %s nobatch digits" % (f_tiff, f_name)
+	cmd_ocr = "tesseract -l eng %s %s digit" % (f_tiff, f_name)
 
 	os.system(cmd_capture)
 	os.system(cmd_save)
@@ -207,4 +207,4 @@ if __name__ == "__main__":
 
 #	searching_mode()
 #	fast_search()
-	smart_search(gold=150000, ex=150000)
+	smart_search(gold=150000, ex=150000, delay=8)
