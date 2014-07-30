@@ -5,7 +5,7 @@ import random
 import time
 import ast
 import subprocess
-
+import argparse
 
 # Global variable
 DEVICE = {}
@@ -126,15 +126,17 @@ def threshold_reached(res, gold, ex, dark):
 		return False
 
 
-def smart_search(delay=8, gold=120000, ex=120000, dark=1000):
-	print "[COC] Smart Search"
+def search(delay=8, gold=120000, ex=120000, dark=1000, skip_ocr=False):
+	print "\n[COC] Search Mode"
+
 	print "Gold   threshold: {:7,d}".format(gold)
 	print "Elixir threshold: {:7,d}".format(ex)
 	print "Dark E threshold: {:7,d}".format(dark)
 	print "Searching delay : %d seconds" % delay
+	print "Parse loots: %s" % ("No" if skip_ocr else "Yes")
 
 	count = 0
-	print "\n[%3d] %s" % (count, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+	print_timestamp(count)
 
 	while True:
 		count += 1
@@ -144,31 +146,22 @@ def smart_search(delay=8, gold=120000, ex=120000, dark=1000):
 		wait_for_a_while(delay, delay)
 
 		# Processing...
-		res = get_resources()
-		if (len(res) >= 2) and threshold_reached(res, gold, ex, dark):
-			cmd_say = "say 'Gold %d, elixir %d. I found the target. Shall we attack now?'" % (res[0]/1000*1000, res[1]/1000*1000)
-			os.system(cmd_say)
-			print "\n[%3d] %s (+%2d sec)" % (count, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),  wait_for_a_while(1, 3))
+		if skip_ocr:
+			print_timestamp(count, wait_for_a_while(4, 6))
 
 		else:
-			print "\n[%3d] %s" % (count, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+			res = get_resources()
+			if (len(res) >= 2) and threshold_reached(res, gold, ex, dark):
+				cmd_say = "say 'Gold %d, elixir %d. I found the target. Shall we attack now?'" % (res[0]/1000*1000, res[1]/1000*1000)
+				os.system(cmd_say)
+				print_timestamp(count, wait_for_a_while(1, 3))
+
+			else:
+				print_timestamp(count)
 
 
-
-def fast_search():
-	print "[COC] Fast Search"
-	count = 0
-	while True:
-		count += 1
-		wait_for_a_while(5, 5)
-		get_resources()
-		print "Processed"
-		print "[%3d] %s (+%2d sec)" % (count, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),  wait_for_a_while(5, 7) + 5)
-		tap_attack_next()
-
-
-def searching_mode():
-	print "[COC] Searching Mode"
+def attack():
+	print "\n[COC] Attack Mode"
 
 	cmd_1 = "adb shell am start -n com.supercell.clashofclans/.GameApp"
 	cmd_2 = "adb shell am force-stop com.supercell.clashofclans"
@@ -180,31 +173,44 @@ def searching_mode():
 	wait_for_a_while(2, 4)
 	tap_attack_find()
 		
-	count = 0
-	print "[%3d] %s" % (count, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-	while True:
-		count += 1
-		print "[%3d] %s (+%2d sec)" % (count, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),  wait_for_a_while(8, 12))
-		tap_attack_next()
 #		tap_attack_end()
 #		tap_attack_close()
 
 
+def print_timestamp(count, delay=None):
+	if delay == None:
+		print "\n[%3d] %s" % (count, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+	else:
+		print "\n[%3d] %s (+%2d seconds)" % (count, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),  delay)
+
+
 def load_device_config(device="nexus_5"):
 	global DEVICE
+	print "Device: %s" % device
 
 	with open("config/%s.config" % device, 'r') as f:
 		s = f.read()
 		DEVICE = ast.literal_eval(s)
 
 
-def pre_processing():
-	load_device_config()
+def pre_processing(args):
+	load_device_config(args.device)
 
 
 if __name__ == "__main__":
-	pre_processing()
+	parser = argparse.ArgumentParser(description='A simple COC attack planner.')
+	parser.add_argument('-d', '--device', dest='device', choices=['nexus_5'], default='nexus_5', help='device name')
+	parser.add_argument('-g', '--gold', dest='gold', default=150000, type=int, help='gold threshold')
+	parser.add_argument('-e', '--elixir', dest='ex', default=150000, type=int, help='elixir threshold')
+	parser.add_argument('-D', '--dark', dest='dark', default=1000, type=int, help='dark elixir threshold')
+	parser.add_argument('--delay', dest='delay', default=8, type=int, help='searching delay')
+	parser.add_argument('-a', '--attack', dest='attack', action='store_true', help='attack from main screen')
+	parser.add_argument('-s', '--skip-ocr', dest='skip_ocr', action='store_true', help='skip parsing loots')
+	args = parser.parse_args()
 
-#	searching_mode()
-#	fast_search()
-	smart_search(gold=150000, ex=150000, delay=8)
+	pre_processing(args)
+
+	if (args.attack):
+		attack()
+
+	search(delay=args.delay, gold=args.gold, ex=args.ex, dark=args.dark, skip_ocr=args.skip_ocr)
