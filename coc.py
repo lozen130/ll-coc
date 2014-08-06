@@ -199,7 +199,7 @@ def pre_processing(args):
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='A simple COC attack planner.')
-	parser.add_argument('-d', '--device', dest='device', choices=['nexus_5'], default='nexus_5', help='device name')
+	parser.add_argument('-d', '--device', dest='device', choices=['nexus_5', 'nexus_7'], default='nexus_5', help='device name')
 	parser.add_argument('-g', '--gold', dest='gold', default=150000, type=int, help='gold threshold')
 	parser.add_argument('-e', '--elixir', dest='ex', default=150000, type=int, help='elixir threshold')
 	parser.add_argument('-D', '--dark', dest='dark', default=1000, type=int, help='dark elixir threshold')
