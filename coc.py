@@ -59,6 +59,17 @@ def get_resources():
 	return res
 
 
+def log_loots(res):
+	f_name = "log/%s.log" % time.strftime("%Y_%m_%d", time.localtime())
+	with open(f_name, 'ab+') as f:
+		if (len(res) == 2):
+			f.write("%s, %d, %d, 0, 0\n" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), res[0], res[1]))
+		elif (len(res) == 3):
+			f.write("%s, %d, %d, 0, %d\n" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), res[0], res[1], res[2]))
+		elif (len(res) == 4):
+			f.write("%s, %d, %d, %d, %d\n" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), res[0], res[1], res[2], res[3]))
+
+
 def tap_attack():
 	tap_XY(DEVICE["tap_attack"])
 
@@ -151,6 +162,7 @@ def search(delay=8, gold=120000, ex=120000, dark=1000, skip_ocr=False):
 
 		else:
 			res = get_resources()
+			log_loots(res)
 			if (len(res) >= 2) and threshold_reached(res, gold, ex, dark):
 				cmd_say = "say 'Gold %d, elixir %d. I found the target. Shall we attack now?'" % (res[0]/1000*1000, res[1]/1000*1000)
 				os.system(cmd_say)
